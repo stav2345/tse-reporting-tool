@@ -19,7 +19,12 @@ import window_restorer.RestoreableWindow;
 import xlsx_reader.TableSchema;
 import xml_catalog_reader.Selection;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class ReportListDialog extends TableDialog {
+	
+	private static final Logger LOGGER = LogManager.getLogger(ReportListDialog.class);
 
 	private RestoreableWindow window;
 	private static final String WINDOW_CODE = "ReportList";
@@ -79,6 +84,7 @@ public class ReportListDialog extends TableDialog {
 	public boolean apply(TableSchema schema, Collection<TableRow> rows, TableRow selectedRow) {
 
 		if (selectedRow == null) {
+			LOGGER.info("There is no selected row");
 			warnUser(TSEMessages.get("error.title"), TSEMessages.get("report.not.selected"));
 			return false;
 		}

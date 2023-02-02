@@ -23,6 +23,9 @@ import tse_config.CustomStrings;
 import xlsx_reader.TableSchema;
 import xlsx_reader.TableSchemaList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * A TSE report
  * 
@@ -31,6 +34,8 @@ import xlsx_reader.TableSchemaList;
  *
  */
 public class TseReport extends Report {
+	
+	private static final Logger LOGGER = LogManager.getLogger(TseReport.class);
 
 	public TseReport() {
 		super(getReportSchema());
@@ -237,6 +242,7 @@ public class TseReport extends Report {
 		try {
 			throw new UnsupportedOperationException("Cannot use this method");
 		} catch (UnsupportedOperationException e) {
+			LOGGER.error("This operation is not supported");
 			e.printStackTrace();
 		}
 	}
@@ -247,6 +253,7 @@ public class TseReport extends Report {
 		try {
 			throw new UnsupportedOperationException("Cannot use this method");
 		} catch (UnsupportedOperationException e) {
+			LOGGER.error("This operation is not supported");
 			e.printStackTrace();
 		}
 

@@ -13,7 +13,12 @@ import table_database.TableDao;
 import table_skeleton.TableRowList;
 import xlsx_reader.TableSchemaList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class TSEWarnings {
+	
+	static final Logger LOGGER = LogManager.getLogger(TSEWarnings.class);
 
 	public static Message getSendMessageWarning(SendMessageException sendE, IDataset... reports) {
 
@@ -54,7 +59,7 @@ public class TSEWarnings {
 					TSEMessages.get("send.message.failed", messageError, PropertiesReader.getSupportEmail()), reports);
 			break;
 		}
-
+		LOGGER.info("Message Warning: ", msg);
 		return msg;
 	}
 }

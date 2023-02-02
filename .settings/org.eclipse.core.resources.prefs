@@ -1,5 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/main/java=Cp1252
+encoding//src/main/java/providers/TseReportService.java=UTF-8
 encoding//src/main/resources=Cp1252
 encoding//src/main/resources/icons=Cp1252
 encoding/<project>=Cp1252

@@ -113,6 +113,7 @@ public class TseReportImporter extends ReportImporter {
 					// save it in the cache
 					summInfos.add(si);
 				}
+				LOGGER.info(summInfos);
 			}
 		}
 	}
@@ -144,8 +145,6 @@ public class TseReportImporter extends ReportImporter {
 
 					String origSampId = TseReportService.getOrigSampIdFrom(row);
 
-					LOGGER.info("Samp orig id=" + origSampId + " for " + row);
-
 					// get the summarized info related to the case/result
 					summInfo = getSummInfoByOrigSampId(origSampId);
 
@@ -162,12 +161,14 @@ public class TseReportImporter extends ReportImporter {
 						hashes += TseReportService.getOrigSampIdFrom(si) + "\n";
 					}
 
-					System.err.println("Cannot find origSampId " + origSampId);
+					if (origSampId == null) {
+						LOGGER.error("Can not find origSampId: " + origSampId + "for row: " + row);
 
-					throw new ParseException(
-							"No aggregated data was found related to sampOrigId=" + origSampId + " for individual case="
-									+ row + ". Available aggregated data are: " + summInfos + "with hashes" + hashes,
-							0);
+						throw new ParseException(
+								"No aggregated data was found related to sampOrigId=" + origSampId + " for individual case="
+										+ row + ". Available aggregated data are: " + summInfos + "with hashes" + hashes,
+								0);	
+					}
 				}
 
 				// import the case
@@ -234,6 +235,7 @@ public class TseReportImporter extends ReportImporter {
 
 		// then import the analytical result
 		TableRow result = extractAnalyticalResult(report1, summInfo, caseInfo, row);
+		LOGGER.info("Analytical Results to be imported: ", result);
 
 		// save the result into the db
 		daoService.add(result);
@@ -288,15 +290,15 @@ public class TseReportImporter extends ReportImporter {
 		try {
 			Relation.injectGlobalParent(summInfo, CustomStrings.PREFERENCES_SHEET, daoService);
 		} catch (IOException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot inject global parent=" + CustomStrings.PREFERENCES_SHEET, e);
+			e.printStackTrace();
 		}
 
 		try {
 			Relation.injectGlobalParent(summInfo, CustomStrings.SETTINGS_SHEET, daoService);
 		} catch (IOException e) {
-			e.printStackTrace();
 			LOGGER.error("Cannot inject global parent=" + CustomStrings.SETTINGS_SHEET, e);
+			e.printStackTrace();
 		}
 
 		// set also the summarized information type using
@@ -327,8 +329,10 @@ public class TseReportImporter extends ReportImporter {
 
 		TableCell sampId = row.get(CustomStrings.SAMPLE_ID_COL);
 
-		if (sampId == null)
+		if (sampId == null){
+			LOGGER.error("Missing sampId to extract from case row: ", row);
 			throw new ParseException("Missing sampId", -1);
+		}
 
 		// create empty case report
 		TableRow caseReport;
@@ -458,7 +462,7 @@ public class TseReportImporter extends ReportImporter {
 				return info;
 			}
 		}
-
+		LOGGER.info("Summarized information to given a prog id of an analytical result could not be found");
 		return null;
 	}
 
@@ -476,7 +480,7 @@ public class TseReportImporter extends ReportImporter {
 	@Override
 	public void importDatasetRows(List<TableRow> rows) throws FormulaException, ParseException {
 
-		LOGGER.info("Importing the summarized information");
+		LOGGER.info("Importing the summarized information: ", rows);
 
 		// first import the summarized information
 		importSummarizedInformation(mainReport, rows);
@@ -488,6 +492,7 @@ public class TseReportImporter extends ReportImporter {
 			// then import cases and results
 			importCasesAndResults(mainReport, rows);
 		} catch (Exception e) {
+			LOGGER.error("Error upon importing cases and results", e);
 			e.printStackTrace();
 		}
 	}
