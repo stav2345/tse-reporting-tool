@@ -115,7 +115,7 @@ public class CaseReportDialog extends TableDialogWithMenu {
 		boolean hasExpectedCases = !isRGT // cannot compute expected cases for RGT
 				&& getNumberOfExpectedCases(summInfo) > 0;
 
-		boolean canAsk = isEditable() && !summInfo.isBSEOS()
+		boolean canAsk = isEditable() 
 				&& !reportService.hasChildren(summInfo, TableSchemaList.getByName(CustomStrings.CASE_INFO_SHEET))
 				&& (hasExpectedCases || isRGT);
 
@@ -331,4 +331,5 @@ public class CaseReportDialog extends TableDialogWithMenu {
 		replace(caseReport);
 		
 	}
+
 }
