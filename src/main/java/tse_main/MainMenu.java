@@ -1,13 +1,18 @@
 package tse_main;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -52,6 +57,8 @@ import user_interface.ProxySettingsDialog;
 import xlsx_reader.TableSchema;
 import xlsx_reader.TableSchemaList;
 
+import org.apache.commons.io.FileUtils;
+
 /**
  * Create the main menu of the application in the given shell
  * 
@@ -85,6 +92,10 @@ public class MainMenu {
 	protected MenuItem downloadReport;
 	protected MenuItem exportReport;
 	protected MenuItem exitApplication;
+	
+	private MenuItem fixScreensIssue;
+	private String workDir = "";
+	private static final String PREF_DIR_NAME = "preferences";
 
 	// TODO to finish
 	// private MenuItem importExcelReport;
@@ -100,8 +111,9 @@ public class MainMenu {
 
 	public void create() {
 
-		// create menus
+		// Add a menu bar => MAIN MENU
 		this.main = new Menu(shell, SWT.BAR);
+		// file menu with new report, open report, close report, import report, download etc..
 		this.fileMenu = new Menu(shell, SWT.DROP_DOWN);
 
 		this.file = new MenuItem(main, SWT.CASCADE);
@@ -134,6 +146,8 @@ public class MainMenu {
 				// can only export valid reports
 				exportReport.setEnabled(isReportOpened && mainPanel.getOpenedReport().getRCLStatus().isValid());
 				importReport.setEnabled(!DebugConfig.disableFileFuncs && editable);
+				
+				fixScreensIssue.setEnabled(true);
 
 				// TODO enable import excel report if not report is currently opened
 				// importExcelReport.setEnabled(editable);
@@ -472,6 +486,53 @@ public class MainMenu {
 			}
 		});
 
+		// fix multiple screens issue
+		this.fixScreensIssue = new MenuItem(fileMenu, SWT.PUSH);
+		this.fixScreensIssue.setText("Fix multiple screens issue");
+		this.fixScreensIssue.addSelectionListener(new SelectionAdapter() {
+		  
+		@Override public void widgetSelected(SelectionEvent arg0) {
+		  
+		  boolean confirmation = MessageDialog.openQuestion(shell,
+		  "Fix multiple screens issue",
+		  "Use this function only in case you can't see browser windows (usually happens when using multiple screens).\nNote that this operation requires a forced shut down of the tool.\n\nDo you want to continue with this operation?"
+		  );
+		  
+		  shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
+		  
+		  if (confirmation) { 
+			  // remove preferences and close the tool
+			  try {
+
+				  String preferencesDirectory = workDir + PREF_DIR_NAME + System.getProperty("file.separator");
+				  File prefFile = new File(preferencesDirectory);
+						 	 
+				  FileUtils.deleteDirectory(prefFile);
+				 
+				  //if (shell.getMenu() != null)
+						//shell.getMenu().dispose();
+				  
+				  // shell.getShell().close(); 
+				  // fileMenu.getShell().close();
+				  // main.getShell().close();
+				  
+			    }catch( FileNotFoundException ex) {
+		            ex.printStackTrace();	         
+				} catch (IOException e) {
+					e.printStackTrace();
+				} 
+		  } 
+		  
+		  fixScreensIssue.setEnabled(false);
+		  
+		  shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_ARROW)); 
+		  
+		  }
+		  
+		  @Override public void widgetDefaultSelected(SelectionEvent arg0) {} 
+		  
+		});
+				
 		// open preferences
 		this.preferences.addSelectionListener(new SelectionListener() {
 
@@ -513,7 +574,7 @@ public class MainMenu {
 		// set the menu
 		this.shell.setMenuBar(main);
 	}
-
+	
 	/**
 	 * Add some debug functionalities
 	 */
